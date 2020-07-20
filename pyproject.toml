@@ -1,0 +1,15 @@
+[build-system]
+requires = ["maturin"]
+build-backend = "maturin"
+
+[package.metadata.maturin]
+classifier = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Mozilla Public License 2.0",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python",
+    "Programming Language :: Rust",
+]
