@@ -1,6 +1,6 @@
 [package]
-name = "pyext-canonicaljson"
-version = "0.1.0"
+name = "canonicaljson-rs"
+version = "1.0.0"
 authors = ["Mathieu Leplatre <mathieu@mozilla.com>"]
 edition = "2018"
 
