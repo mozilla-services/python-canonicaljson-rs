@@ -1,4 +1,4 @@
-use canonical_json::ser::{to_canonical_json, CanonicalJSONError};
+use canonical_json::ser::{to_string, CanonicalJSONError};
 use pyo3::exceptions::TypeError as PyTypeError;
 use pyo3::prelude::*;
 use pyo3::{
@@ -78,7 +78,7 @@ pub fn dump(py: Python, obj: PyObject, fp: PyObject) -> PyResult<PyObject> {
 #[pyfunction]
 pub fn dumps(py: Python, obj: PyObject) -> PyResult<PyObject> {
     let v = to_json(py, &obj)?;
-    match to_canonical_json(&v) {
+    match to_string(&v) {
         Ok(s) => Ok(s.to_object(py)),
         Err(e) => Err(PyErr::new::<PyTypeError, _>(format!("{:?}", e))),
     }
