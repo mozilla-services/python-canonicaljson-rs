@@ -1,8 +1,11 @@
 [package]
 name = "canonicaljson-rs"
-version = "1.0.0"
+version = "0.1.0"
 authors = ["Mathieu Leplatre <mathieu@mozilla.com>"]
 edition = "2018"
+description = "Python bindings for canonical_json"
+license = "Mozilla Public License 2.0"
+repository = "https://github.com/leplatrem/python-canonicaljson-rs/"
 
 [lib]
 name = "canonicaljson"
