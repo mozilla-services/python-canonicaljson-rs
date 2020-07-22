@@ -18,6 +18,7 @@ FIXTURES = [
     ("s", '"s"'),
     ("é", '"\\u00e9"'),
     (10.0**21, '1e+21'),
+    ("1\n2\b\f", '"1\\n2\\b\\f"'),
 ]
 
 @pytest.mark.parametrize("value,expected", FIXTURES)
