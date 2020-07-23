@@ -17,8 +17,8 @@ Usage
 
     >>> import canonicaljson
     >>>
-    >>> canonicaljson.dumps({"foo": 42})
-    '{"foo":42}'
+    >>> canonicaljson.dumps({"héo": 42})
+    '{"h\\u00e9o":42}'
 
 
 * ``canonicaljson.dumps(obj: Any) -> str``

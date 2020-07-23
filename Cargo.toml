@@ -8,12 +8,13 @@ license = "Mozilla Public License 2.0"
 repository = "https://github.com/leplatrem/python-canonicaljson-rs/"
 
 [lib]
-name = "canonicaljson"
+name = "canonicaljson"  # python package name
 crate-type = ["cdylib"]
 
 [dependencies]
 serde = "1.0"
 serde_json = "1.0"
+canonical_json = { version = "0.1.0", path = "../remote-settings-client/src/client/signatures/canonical_json" }
 
 [dependencies.pyo3]
 version = "0.11"
