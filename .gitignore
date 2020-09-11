@@ -1,3 +1,5 @@
 /target
 __pycache__
 .vscode/
+.venv
+.pytest_cache
