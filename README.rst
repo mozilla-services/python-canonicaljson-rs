@@ -25,14 +25,6 @@ Usage
 * ``canonicaljson.dump(obj: Any, stream: IO) -> str``
 
 
-See Also
-========
-
-* https://github.com/Kinto/kinto-signer/blob/6.1.0/kinto_signer/canonicaljson.py
-* https://searchfox.org/mozilla-central/rev/b2395478c/toolkit/modules/CanonicalJSON.jsm
-* https://github.com/matrix-org/python-canonicaljson
-* The code to build a ``serde_json::Value`` from a ``pyo3::PyObject`` was greatly inspired by Matthias Endler's `hyperjson <https://github.com/mre/hyperjson/>`_
-
 Development
 ===========
 
@@ -62,6 +54,18 @@ Update version in ``Cargo.toml`` and:
 
     maturin build
     maturin publish
+
+See Also
+========
+
+* https://github.com/gibson042/canonicaljson-spec
+* The code to build a ``serde_json::Value`` from a ``pyo3::PyObject`` was greatly inspired by Matthias Endler's `hyperjson <https://github.com/mre/hyperjson/>`_
+
+Other specs:
+
+* https://github.com/Kinto/kinto-signer/blob/6.1.0/kinto_signer/canonicaljson.py
+* https://searchfox.org/mozilla-central/rev/b2395478c/toolkit/modules/CanonicalJSON.jsm
+* https://github.com/matrix-org/python-canonicaljson
 
 License
 =======
