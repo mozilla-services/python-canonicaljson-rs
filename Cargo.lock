@@ -17,10 +17,11 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "canonical_json"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15363defae791f14f2022c383786ea40c180293428e7c7b136560f627d914b95"
+checksum = "07661fa00baabe0b943eb831a265ea1a4564ff9af2ce71201e99c0e5d988b035"
 dependencies = [
+ "hex",
  "regex",
  "serde",
  "serde_json",
@@ -71,6 +72,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "hex"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "644f9158b2f133fd50f5fb3242878846d9eb792e445c893805ff0e3824006e35"
 
 [[package]]
 name = "indoc"
