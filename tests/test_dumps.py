@@ -42,9 +42,9 @@ class Unserializable:
 
 
 @pytest.mark.parametrize("value,msg", [
-    (datetime.datetime.now(), "Invalid type: datetime.datetime"),
+    (datetime.datetime.now(), "Invalid type: datetime"),
     ({Unserializable(): "a"}, "Dictionary key is not serializable: Unserializable"),
-    ({"a": datetime.datetime.now()}, "Invalid type: datetime.datetime")
+    ({"a": datetime.datetime.now()}, "Invalid type: datetime")
 ])
 def test_unserializable(value, msg):
     with pytest.raises(TypeError) as excinfo:
