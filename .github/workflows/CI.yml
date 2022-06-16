@@ -1,0 +1,50 @@
+on: [push, pull_request]
+
+name: CI
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Cargo check
+        run: cargo check
+
+  python-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3
+    - name: Build wheels
+      uses: messense/maturin-action@v1
+      with:
+        target: x86_64
+        manylinux: auto
+        args: --release --out dist/ --no-sdist
+    - name: Install built wheel
+      run: |
+        pip install canonicaljson-rs --no-index --find-links dist/ --force-reinstall
+        pip install pytest
+        pytest
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup component add rustfmt
+      - name: Lint
+        run: cargo fmt --all -- --check
