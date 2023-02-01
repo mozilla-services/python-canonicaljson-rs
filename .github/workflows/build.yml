@@ -2,7 +2,12 @@ name: Publish wheels
 
 on:
   push:
+    tags:
+      - v*
   pull_request:
+    paths:
+      - 'Cargo.toml'
+      - 'pyproject.toml'
 
 jobs:
   build:
