@@ -11,9 +11,8 @@ on:
 
 jobs:
   build:
+    # This workflow comes from https://github.com/pydantic/pydantic-core/blob/main/.github/workflows/ci.yml
     name: build on ${{ matrix.platform || matrix.os }} (${{ matrix.target }} - ${{ matrix.manylinux || 'auto' }})
-    # only run on push to main and on release
-    # if: "success() && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'Full Build'))"
     strategy:
       fail-fast: false
       matrix:
