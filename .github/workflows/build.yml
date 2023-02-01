@@ -47,15 +47,6 @@ jobs:
             target: armv7
             container: messense/manylinux_2_24-cross:armv7
             interpreter: 3.7 3.8 3.9 3.10 3.11
-          # musllinux
-          - os: ubuntu
-            platform: linux
-            target: x86_64
-            manylinux: musllinux_1_1
-          - os: ubuntu
-            platform: linux
-            target: aarch64
-            manylinux: musllinux_1_1
           - os: ubuntu
             platform: linux
             target: ppc64le
@@ -66,6 +57,15 @@ jobs:
             target: s390x
             container: messense/manylinux_2_24-cross:s390x
             interpreter: 3.7 3.8 3.9 3.10 3.11
+          # musllinux
+          - os: ubuntu
+            platform: linux
+            target: x86_64
+            manylinux: musllinux_1_1
+          - os: ubuntu
+            platform: linux
+            target: aarch64
+            manylinux: musllinux_1_1
         exclude:
           # Windows on arm64 only supports Python 3.11+
           - os: windows
