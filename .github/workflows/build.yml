@@ -18,10 +18,16 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         target: [x86_64, aarch64]
+        # https://github.com/pypa/manylinux#readme
         manylinux: [auto]
         include:
           - os: ubuntu
             platform: linux
+          - os: ubuntu
+            platform: linux
+            target: x86_64
+            # https://github.com/PyO3/maturin-action/blob/135c746/src/index.ts#L33
+            manylinux: 2_28
           - os: windows
             ls: dir
             interpreter: 3.7 3.8 3.9 3.10 3.11
