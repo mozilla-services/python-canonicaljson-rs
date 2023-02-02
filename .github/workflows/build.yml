@@ -37,6 +37,11 @@ jobs:
           # Because GCC 4.8.5 in manylinux2014 container doesn't support c11 atomic
           - os: ubuntu
             platform: linux
+            target: x86_64
+            manylinux: 2_24
+          - os: ubuntu
+            platform: linux
+            target: aarch64
             manylinux: 2_24
           - os: ubuntu
             platform: linux
