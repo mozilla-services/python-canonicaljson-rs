@@ -49,8 +49,8 @@ Update version in ``Cargo.toml`` and:
 
     vim Cargo.toml
     git ci -am "Bump version"
-    git tag -a v1.2.3
-    git push v1.2.3
+    git tag -a vX.Y.Z
+    git push vX.Y.Z
 
 Publish wheel for your host OS:
 
@@ -62,7 +62,7 @@ Publish wheel for your host OS:
 
 Publish wheels of all architectures on PyPi:
 
-1. Download artifacts from Github Actions run on tag v1.2.3. On the bottom of the `Publish wheels` workflow summary page, download the `pypi_files.zip` and extract it locally.
+1. Download artifacts from Github Actions run on tag vX.Y.Z. On the bottom of the `Publish wheels` workflow summary page, download the `pypi_files.zip` and extract it locally.
 2. Run `twine check --strict pypi_files/*.whl`
 3. Publish on PyPi with `twine upload --skip-existing pypi_files/*.whl`
 
