@@ -1,4 +1,6 @@
 /target
+/sdist
+/PKG-INFO
 __pycache__
 .vscode/
 .venv
