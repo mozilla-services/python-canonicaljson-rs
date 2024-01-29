@@ -1,4 +1,5 @@
 /target
+/dist
 /sdist
 /PKG-INFO
 __pycache__

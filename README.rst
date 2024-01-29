@@ -40,31 +40,20 @@ In order to install the package in the current environment:
 
     maturin develop
 
+Run tests:
+
+.. code-block ::
+
+    pytest
+
+
 Release
 =======
 
-Update version in ``Cargo.toml`` and:
-
-.. code-block ::
-
-    vim Cargo.toml
-    git ci -am "Bump version"
-    git tag -a vX.Y.Z
-    git push vX.Y.Z
-
-Publish wheel for your host OS:
-
-.. code-block ::
-
-    maturin build
-    maturin publish
-
-
-Publish wheels of all architectures on PyPi:
-
-1. Download artifacts from Github Actions run on tag vX.Y.Z. On the bottom of the `Publish wheels` workflow summary page, download the `pypi_files.zip` and extract it locally.
-2. Run `twine check --strict pypi_files/*.whl`
-3. Publish on PyPi with `twine upload --skip-existing pypi_files/*.whl`
+1. Create a release on Github on https://github.com/mozilla-services/python-canonicaljson-rs/releases/new
+2. Create a new tag `vX.Y.Z` (*This tag will be created from the target when you publish this release.*)
+3. Generate release notes
+4. Publish release
 
 See Also
 ========

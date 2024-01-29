@@ -9,7 +9,20 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    groups:
+      minor-patch-dependencies:
+        update-types: ["minor", "patch"]
   - package-ecosystem: "pip"
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    groups:
+      minor-patch-dependencies:
+        update-types: ["minor", "patch"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      minor-patch-dependencies:
+          update-types: ["minor", "patch"]
