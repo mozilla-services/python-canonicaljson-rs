@@ -139,6 +139,7 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
+          overwrite: true
 
   publish-to-pypi:
     name: Publish Python 🐍 distribution 📦 to PyPI
