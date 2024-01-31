@@ -143,7 +143,7 @@ jobs:
 
   publish-to-pypi:
     name: Publish Python 🐍 distribution 📦 to PyPI
-    if: endsWith(github.ref, 'refs/tags/debug-publish-action-') != true
+    if: endsWith(github.ref, '-debug-publish-action') != true
     needs:
       - build
     runs-on: ubuntu-latest
