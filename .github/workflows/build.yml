@@ -22,23 +22,23 @@ jobs:
             target: x86_64
             manylinux: auto
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
           - os: windows
             ls: dir
             target: i686
             manylinux: auto
             python-architecture: x86
-            interpreter: 3.7 3.8 3.9 3.10 3.11
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
           - os: macos
             target: x86_64
             manylinux: auto
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 pypy3.7 pypy3.8 pypy3.9
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
           - os: macos
             target: aarch64
             manylinux: auto
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
           # Build all manylinux targets on 2_24
           # https://github.com/pypa/manylinux#readme
           # https://github.com/PyO3/maturin-action/blob/135c746/src/index.ts#L33
@@ -46,43 +46,43 @@ jobs:
             target: x86_64
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 pypy3.7 pypy3.8 pypy3.9
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
           - os: ubuntu
             target: aarch64
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 pypy3.7 pypy3.8 pypy3.9
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
           - os: ubuntu
             target: i686
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 pypy3.7 pypy3.8 pypy3.9
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
           - os: ubuntu
             target: armv7
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
           - os: ubuntu
             target: ppc64le
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
           - os: ubuntu
             target: s390x
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
           # musllinux - https://musl.libc.org/about.html
           - os: ubuntu
             target: x86_64
             manylinux: musllinux_1_1 # /!\ value used in steps conditions below.
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 pypy3.7 pypy3.8 pypy3.9
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
           - os: ubuntu
             target: aarch64
             manylinux: musllinux_1_1
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 pypy3.7 pypy3.8 pypy3.9
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
 
     runs-on: ${{ matrix.os }}-latest
     steps:
