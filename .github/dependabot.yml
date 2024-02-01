@@ -25,4 +25,4 @@ updates:
       interval: weekly
     groups:
       minor-patch-dependencies:
-          update-types: ["minor", "patch"]
+          update-types: ["major", "minor", "patch"]
