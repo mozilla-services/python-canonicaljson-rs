@@ -1,18 +1,14 @@
-name: Publish wheels
+name: Publish Python 🐍 distribution 📦 to PyPI
 
 on:
   push:
     tags:
-      - v*
-  pull_request:
-    paths:
-      - 'Cargo.toml'
-      - 'pyproject.toml'
+      - '*'
 
 jobs:
   build:
     # This workflow comes from https://github.com/pydantic/pydantic-core/blob/main/.github/workflows/ci.yml
-    name: build on ${{ matrix.os }} (${{ matrix.target }} - ${{ matrix.manylinux }})
+    name: Build distribution 📦 on ${{ matrix.os }} (${{ matrix.target }} - ${{ matrix.manylinux }})
     strategy:
       fail-fast: false
       matrix:
@@ -88,15 +84,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: set up python
+      - name: Set up python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
           architecture: ${{ matrix.python-architecture }}
 
-      - run: pip install -U twine
+      - name: Extract version from tag
+        uses: actions/github-script@v4
+        id: set_version
+        with:
+          script: |
+            const tag = context.ref.substring(10)
+            const no_v = tag.replace('v', '')
+            const dash_index = no_v.lastIndexOf('-')
+            const no_dash = (dash_index > -1) ?  no_v.substring(0, dash_index) : no_v
+            core.setOutput('no-dash', no_dash)
 
-      - name: build sdist
+      - name: Set package version from Git
+        run: |
+          cargo install cargo-edit
+          cargo set-version ${{steps.set_version.outputs.no-dash}}
+
+      - name: Build sdist
         if: ${{ matrix.os == 'ubuntu' && matrix.target == 'x86_64' && matrix.manylinux != 'musllinux_1_1' }}
         uses: messense/maturin-action@v1
         with:
@@ -104,7 +114,7 @@ jobs:
           args: --out dist/
           rust-toolchain: stable
 
-      - name: build wheels
+      - name: Build wheels
         uses: messense/maturin-action@v1
         with:
           target: ${{ matrix.target }}
@@ -112,17 +122,43 @@ jobs:
           args: --release --out dist/ --interpreter ${{ matrix.interpreter }}
           rust-toolchain: stable
 
-      - run: ${{ matrix.ls || 'ls -lh' }} dist/
+      - name: Check wheels content
+        run: |
+          ${{ matrix.ls || 'ls -lh' }} dist/
+          pip install -U twine
+          twine check --strict dist/*
 
-      - run: twine check --strict dist/*
-
-      - name: install built wheel
+      - name: Install built wheel on Ubuntu 64
         if: ${{ matrix.os == 'ubuntu' && matrix.target == 'x86_64' && matrix.manylinux != 'musllinux_1_1' }}
         run: |
           pip install canonicaljson-rs --no-index --find-links dist/ --force-reinstall
           python -c "import canonicaljson"
 
-      - uses: actions/upload-artifact@v3
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
         with:
-          name: pypi_files
+          name: python-package-distributions
           path: dist/
+          overwrite: true
+
+  publish-to-pypi:
+    name: Publish Python 🐍 distribution 📦 to PyPI
+    if: endsWith(github.ref, '-debug-publish-action') != true
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+      url: https://pypi.org/p/canonicaljson-rs
+    permissions:
+      id-token: write
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
