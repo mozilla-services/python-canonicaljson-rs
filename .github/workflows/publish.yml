@@ -29,7 +29,7 @@ jobs:
             target: x86_64
             manylinux: auto
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: macos
             target: aarch64
             manylinux: auto
@@ -42,17 +42,17 @@ jobs:
             target: x86_64
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: ubuntu
             target: aarch64
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: ubuntu
             target: i686
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: ubuntu
             target: armv7
             manylinux: 2_24
@@ -73,12 +73,12 @@ jobs:
             target: x86_64
             manylinux: musllinux_1_1 # /!\ value used in steps conditions below.
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: ubuntu
             target: aarch64
             manylinux: musllinux_1_1
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
 
     runs-on: ${{ matrix.os }}-latest
     steps:
