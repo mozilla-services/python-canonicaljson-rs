@@ -50,9 +50,9 @@ jobs:
             interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: ubuntu
             target: armv7
-            manylinux: 2_28
+            manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
+            interpreter: 3.7 3.8 3.9 3.10 3.11 # No python 3.12 in this container
           - os: ubuntu
             target: ppc64le
             manylinux: 2_24
