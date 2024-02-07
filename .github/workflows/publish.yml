@@ -29,7 +29,7 @@ jobs:
             target: x86_64
             manylinux: auto
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: macos
             target: aarch64
             manylinux: auto
@@ -42,22 +42,17 @@ jobs:
             target: x86_64
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: ubuntu
             target: aarch64
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
-          - os: ubuntu
-            target: i686
-            manylinux: 2_24
-            python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: ubuntu
             target: armv7
             manylinux: 2_24
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12
+            interpreter: 3.7 3.8 3.9 3.10 3.11 # No python 3.12 in this container
           - os: ubuntu
             target: ppc64le
             manylinux: 2_24
@@ -73,12 +68,12 @@ jobs:
             target: x86_64
             manylinux: musllinux_1_1 # /!\ value used in steps conditions below.
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
           - os: ubuntu
             target: aarch64
             manylinux: musllinux_1_1
             python-architecture: x64
-            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9 pypy3.10
+            interpreter: 3.7 3.8 3.9 3.10 3.11 3.12 pypy3.9
 
     runs-on: ${{ matrix.os }}-latest
     steps:
@@ -87,7 +82,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: ${{ matrix.python-architecture }}
 
       - name: Extract version from tag
@@ -137,9 +132,8 @@ jobs:
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ matrix.os }}-${{ matrix.target }}-${{ matrix.manylinux }}
           path: dist/
-          overwrite: true
 
   publish-to-pypi:
     name: Publish Python 🐍 distribution 📦 to PyPI
@@ -156,7 +150,8 @@ jobs:
       - name: Download all the dists
         uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions
+          pattern: python-package-distributions-*
+          merge-multiple: true
           path: dist/
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
