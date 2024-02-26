@@ -87,7 +87,7 @@ pub fn dumps(py: Python, obj: PyObject) -> PyResult<PyObject> {
 fn to_json(py: Python, obj: &PyObject) -> Result<serde_json::Value, PyCanonicalJSONError> {
     macro_rules! return_cast {
         ($t:ty, $f:expr) => {
-            if let Ok(val) = obj.cast_as::<$t>(py) {
+            if let Ok(val) = obj.downcast::<$t>(py) {
                 return $f(val);
             }
         };
