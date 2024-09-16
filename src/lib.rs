@@ -142,13 +142,17 @@ fn to_json(py: Python, obj: &PyObject) -> Result<serde_json::Value, PyCanonicalJ
         Ok(serde_json::Value::Object(map))
     });
 
-    return_cast!(PyList, |x: &PyList| Ok(serde_json::Value::Array(
-        x.iter().map(|x| to_json(py, &x.to_object(py))).collect()?
-    )));
+    return_cast!(PyList, |x: &PyList| {
+        let json_array: Result<Vec<_>, _> =
+            x.iter().map(|x| to_json(py, &x.to_object(py))).collect(); // This turns the iterator into a Result<Vec<Value>, PyCanonicalJSONError>
+        Ok(serde_json::Value::Array(json_array?))
+    });
 
-    return_cast!(PyTuple, |x: &PyTuple| Ok(serde_json::Value::Array(
-        x.iter().map(|x| to_json(py, &x.to_object(py))).collect()?
-    )));
+    return_cast!(PyTuple, |x: &PyTuple| {
+        let json_array: Result<Vec<_>, _> =
+            x.iter().map(|x| to_json(py, &x.to_object(py))).collect(); // This turns the iterator into a Result<Vec<Value>, PyCanonicalJSONError>
+        Ok(serde_json::Value::Array(json_array?))
+    });
 
     return_cast!(PyFloat, |x: &PyFloat| {
         match serde_json::Number::from_f64(x.value()) {
