@@ -57,7 +57,7 @@ impl From<PyCanonicalJSONError> for pyo3::PyErr {
 
 /// A canonical JSON serializer written in Rust
 #[pymodule]
-fn canonicaljson(_py: Python, m: &PyModule) -> PyResult<()> {
+fn canonicaljson(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
 
     m.add_wrapped(wrap_pyfunction!(dump))?;
@@ -105,7 +105,7 @@ fn to_json(py: Python, obj: &PyObject) -> Result<serde_json::Value, PyCanonicalJ
         };
     }
 
-    if obj.as_ref(py).eq(&py.None())? {
+    if obj.bind(py).eq(&py.None())? {
         return Ok(serde_json::Value::Null);
     }
 
@@ -117,7 +117,7 @@ fn to_json(py: Python, obj: &PyObject) -> Result<serde_json::Value, PyCanonicalJ
     return_cast!(PyDict, |x: &PyDict| {
         let mut map = serde_json::Map::new();
         for (key_obj, value) in x.iter() {
-            let key = if key_obj.eq(py.None().as_ref(py))? {
+            let key = if key_obj.eq(py.None().bind(py))? {
                 Ok("null".to_string())
             } else if let Ok(val) = key_obj.extract::<bool>() {
                 Ok(if val {
@@ -131,7 +131,7 @@ fn to_json(py: Python, obj: &PyObject) -> Result<serde_json::Value, PyCanonicalJ
                 Err(PyCanonicalJSONError::DictKeyNotSerializable {
                     typename: key_obj
                         .to_object(py)
-                        .as_ref(py)
+                        .bind(py)
                         .get_type()
                         .name()?
                         .to_string(),
@@ -165,6 +165,6 @@ fn to_json(py: Python, obj: &PyObject) -> Result<serde_json::Value, PyCanonicalJ
 
     // At this point we can't cast it, set up the error object
     Err(PyCanonicalJSONError::InvalidCast {
-        typename: obj.as_ref(py).get_type().name()?.to_string(),
+        typename: obj.bind(py).get_type().name()?.to_string(),
     })
 }
