@@ -17,7 +17,8 @@ FIXTURES = [
     (True, "true"),
     ("s", '"s"'),
     ("é", '"\\u00e9"'),
-    (10.0**21, '1E21'),
+    (10.0**32, '1E32'),
+    (-10.0**21, '-1E21'),
     ("1\n 2 \t \b\f", '"1\\n 2 \\t \\b\\f"'),
     ("\xff I ❤ testing", r'"\u00ff I \u2764 testing"'),
     ("𝄞", r'"\ud834\udd1e"'),
@@ -44,6 +45,8 @@ class Unserializable:
 @pytest.mark.parametrize("value,msg", [
     (datetime.datetime.now(), "Invalid type: datetime"),
     ({Unserializable(): "a"}, "Dictionary key is not serializable: Unserializable"),
+    ({"a": float("inf")}, "Invalid float (NaN/Inf): type float"),
+    ({"a": float("nan")}, "Invalid float (NaN/Inf): type float"),
     ({"a": datetime.datetime.now()}, "Invalid type: datetime")
 ])
 def test_unserializable(value, msg):

@@ -1,21 +1,20 @@
 use canonical_json::ser::{to_string, CanonicalJSONError};
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
-use pyo3::{
-    types::{PyAny, PyDict, PyFloat, PyList, PyTuple},
-    wrap_pyfunction,
-};
+use pyo3::types::{PyAny, PyDict, PyFloat, PyList, PyTuple};
+use pyo3::wrap_pyfunction;
+use serde_json::Value as JsonValue;
 
 pub enum PyCanonicalJSONError {
     InvalidConversion { error: String },
     PyErr { error: String },
     DictKeyNotSerializable { typename: String },
-    InvalidFloat { value: PyObject },
+    InvalidFloat { typename: String },
     InvalidCast { typename: String },
 }
 
 impl From<CanonicalJSONError> for PyCanonicalJSONError {
-    fn from(error: CanonicalJSONError) -> PyCanonicalJSONError {
+    fn from(error: CanonicalJSONError) -> Self {
         PyCanonicalJSONError::InvalidConversion {
             error: format!("{:?}", error),
         }
@@ -23,7 +22,7 @@ impl From<CanonicalJSONError> for PyCanonicalJSONError {
 }
 
 impl From<pyo3::PyErr> for PyCanonicalJSONError {
-    fn from(error: pyo3::PyErr) -> PyCanonicalJSONError {
+    fn from(error: pyo3::PyErr) -> Self {
         PyCanonicalJSONError::PyErr {
             error: format!("{:?}", error),
         }
@@ -34,22 +33,21 @@ impl From<PyCanonicalJSONError> for pyo3::PyErr {
     fn from(e: PyCanonicalJSONError) -> pyo3::PyErr {
         match e {
             PyCanonicalJSONError::InvalidConversion { error } => {
-                PyErr::new::<PyTypeError, _>(format!("Conversion error: {:?}", error))
+                PyErr::new::<PyTypeError, _>(format!("Conversion error: {error}"))
             }
             PyCanonicalJSONError::PyErr { error } => {
-                PyErr::new::<PyTypeError, _>(format!("Python Runtime exception: {}", error))
+                PyErr::new::<PyTypeError, _>(format!("Python Runtime exception: {error}"))
             }
             PyCanonicalJSONError::DictKeyNotSerializable { typename } => {
                 PyErr::new::<PyTypeError, _>(format!(
-                    "Dictionary key is not serializable: {}",
-                    typename
+                    "Dictionary key is not serializable: {typename}"
                 ))
             }
-            PyCanonicalJSONError::InvalidFloat { value } => {
-                PyErr::new::<PyTypeError, _>(format!("Invalid float: {:?}", value))
+            PyCanonicalJSONError::InvalidFloat { typename } => {
+                PyErr::new::<PyTypeError, _>(format!("Invalid float (NaN/Inf): type {typename}"))
             }
             PyCanonicalJSONError::InvalidCast { typename } => {
-                PyErr::new::<PyTypeError, _>(format!("Invalid type: {}", typename))
+                PyErr::new::<PyTypeError, _>(format!("Invalid type: {typename}"))
             }
         }
     }
@@ -59,112 +57,120 @@ impl From<PyCanonicalJSONError> for pyo3::PyErr {
 #[pymodule]
 fn canonicaljson(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
-
     m.add_wrapped(wrap_pyfunction!(dump))?;
     m.add_wrapped(wrap_pyfunction!(dumps))?;
-
     Ok(())
 }
 
 #[pyfunction]
-pub fn dump(py: Python, obj: PyObject, fp: PyObject) -> PyResult<PyObject> {
-    let s = dumps(py, obj)?;
-    let fp_ref: &PyAny = fp.extract(py)?;
-    fp_ref.call_method1("write", (s,))?;
-
-    Ok(pyo3::Python::None(py))
+pub fn dump(py: Python, obj: Py<PyAny>, fp: Py<PyAny>) -> PyResult<Py<PyAny>> {
+    let s_obj = dumps(py, obj)?; // Py<PyAny> (str)
+    fp.bind(py).call_method1("write", (s_obj.bind(py),))?;
+    Ok(py.None()) // already Py<PyAny>
 }
 
 #[pyfunction]
-pub fn dumps(py: Python, obj: PyObject) -> PyResult<PyObject> {
+pub fn dumps(py: Python, obj: Py<PyAny>) -> PyResult<Py<PyAny>> {
     let v = to_json(py, &obj)?;
     match to_string(&v) {
-        Ok(s) => Ok(s.to_object(py)),
+        Ok(s) => Ok(s.into_pyobject(py)?.unbind().into()), // Py<PyString> -> Py<PyAny>
         Err(e) => Err(PyErr::new::<PyTypeError, _>(format!("{:?}", e))),
     }
 }
 
-fn to_json(py: Python, obj: &PyObject) -> Result<serde_json::Value, PyCanonicalJSONError> {
-    macro_rules! return_cast {
-        ($t:ty, $f:expr) => {
-            if let Ok(val) = obj.downcast::<$t>(py) {
-                return $f(val);
+fn type_name(any: &Bound<'_, PyAny>) -> PyResult<String> {
+    Ok(any.get_type().name()?.to_str()?.to_string())
+}
+
+fn to_json(py: Python, obj: &Py<PyAny>) -> Result<JsonValue, PyCanonicalJSONError> {
+    let any = obj.bind(py);
+
+    // None -> JSON null
+    if any.is_none() {
+        return Ok(JsonValue::Null);
+    }
+
+    // Primitive extracts
+    if let Ok(s) = any.extract::<String>() {
+        return Ok(JsonValue::String(s));
+    }
+    if let Ok(b) = any.extract::<bool>() {
+        return Ok(JsonValue::Bool(b));
+    }
+    if let Ok(u) = any.extract::<u64>() {
+        return Ok(serde_json::value::to_value(u).map_err(|e| {
+            PyCanonicalJSONError::InvalidConversion {
+                error: e.to_string(),
             }
-        };
+        })?);
     }
-
-    macro_rules! return_to_value {
-        ($t:ty) => {
-            if let Ok(val) = obj.extract::<$t>(py) {
-                return serde_json::value::to_value(val).map_err(|error| {
-                    PyCanonicalJSONError::InvalidConversion {
-                        error: format!("{}", error),
-                    }
-                });
+    if let Ok(i) = any.extract::<i64>() {
+        return Ok(serde_json::value::to_value(i).map_err(|e| {
+            PyCanonicalJSONError::InvalidConversion {
+                error: e.to_string(),
             }
-        };
+        })?);
     }
 
-    if obj.bind(py).eq(&py.None())? {
-        return Ok(serde_json::Value::Null);
-    }
-
-    return_to_value!(String);
-    return_to_value!(bool);
-    return_to_value!(u64);
-    return_to_value!(i64);
-
-    return_cast!(PyDict, |x: &PyDict| {
+    // Dict
+    if let Ok(dict) = any.downcast::<PyDict>() {
         let mut map = serde_json::Map::new();
-        for (key_obj, value) in x.iter() {
-            let key = if key_obj.eq(py.None().bind(py))? {
-                Ok("null".to_string())
-            } else if let Ok(val) = key_obj.extract::<bool>() {
-                Ok(if val {
-                    "true".to_string()
+        for (k_any, v_any) in dict.iter() {
+            // Key -> string per your rules
+            let key = if k_any.is_none() {
+                "null".to_string()
+            } else if let Ok(b) = k_any.extract::<bool>() {
+                if b {
+                    "true".into()
                 } else {
-                    "false".to_string()
-                })
-            } else if let Ok(val) = key_obj.str() {
-                Ok(val.to_string())
+                    "false".into()
+                }
+            } else if let Ok(s) = k_any.str() {
+                s.to_string()
             } else {
-                Err(PyCanonicalJSONError::DictKeyNotSerializable {
-                    typename: key_obj
-                        .to_object(py)
-                        .bind(py)
-                        .get_type()
-                        .name()?
-                        .to_string(),
-                })
+                return Err(PyCanonicalJSONError::DictKeyNotSerializable {
+                    typename: type_name(&k_any)?,
+                });
             };
-            map.insert(key?, to_json(py, &value.to_object(py))?);
+            let v_json = to_json(py, &v_any.unbind())?;
+            map.insert(key, v_json);
         }
-        Ok(serde_json::Value::Object(map))
-    });
+        return Ok(JsonValue::Object(map));
+    }
 
-    return_cast!(PyList, |x: &PyList| {
-        let json_array: Result<Vec<_>, _> =
-            x.iter().map(|x| to_json(py, &x.to_object(py))).collect(); // This turns the iterator into a Result<Vec<Value>, PyCanonicalJSONError>
-        Ok(serde_json::Value::Array(json_array?))
-    });
-
-    return_cast!(PyTuple, |x: &PyTuple| {
-        let json_array: Result<Vec<_>, _> =
-            x.iter().map(|x| to_json(py, &x.to_object(py))).collect(); // This turns the iterator into a Result<Vec<Value>, PyCanonicalJSONError>
-        Ok(serde_json::Value::Array(json_array?))
-    });
-
-    return_cast!(PyFloat, |x: &PyFloat| {
-        match serde_json::Number::from_f64(x.value()) {
-            Some(n) => Ok(serde_json::Value::Number(n)),
-            None => Err(PyCanonicalJSONError::InvalidFloat {
-                value: x.to_object(py),
-            }),
+    // List
+    if let Ok(lst) = any.downcast::<PyList>() {
+        let mut out = Vec::with_capacity(lst.len());
+        for item in lst.iter() {
+            out.push(to_json(py, &item.unbind())?);
         }
-    });
+        return Ok(JsonValue::Array(out));
+    }
 
-    // At this point we can't cast it, set up the error object
+    // Tuple
+    if let Ok(tup) = any.downcast::<PyTuple>() {
+        let mut out = Vec::with_capacity(tup.len());
+        for item in tup.iter() {
+            out.push(to_json(py, &item.unbind())?);
+        }
+        return Ok(JsonValue::Array(out));
+    }
+
+    // Float (reject NaN/Inf)
+    if let Ok(f) = any.downcast::<PyFloat>() {
+        let val = f.value();
+        match serde_json::Number::from_f64(val) {
+            Some(n) => return Ok(JsonValue::Number(n)),
+            None => {
+                return Err(PyCanonicalJSONError::InvalidFloat {
+                    typename: type_name(&f.as_any())?,
+                })
+            }
+        }
+    }
+
+    // Fallback: unsupported
     Err(PyCanonicalJSONError::InvalidCast {
-        typename: obj.bind(py).get_type().name()?.to_string(),
+        typename: type_name(&any)?,
     })
 }
