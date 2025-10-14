@@ -18,13 +18,13 @@ jobs:
             target: x86_64
             manylinux: auto
             python-architecture: x64
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14
+            interpreter: 3.9 3.10 3.11 3.12 3.13
           - os: windows
             ls: dir
             target: i686
             manylinux: auto
             python-architecture: x86
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14
+            interpreter: 3.9 3.10 3.11 3.12 3.13
           - os: macos
             target: x86_64
             manylinux: auto
