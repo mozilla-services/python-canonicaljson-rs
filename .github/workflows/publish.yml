@@ -131,7 +131,7 @@ jobs:
           python -c "import canonicaljson"
 
       - name: Store the distribution packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: python-package-distributions-${{ matrix.os }}-${{ matrix.target }}-${{ matrix.manylinux }}
           path: dist/
@@ -149,7 +149,7 @@ jobs:
       id-token: write
     steps:
       - name: Download all the dists
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: python-package-distributions-*
           merge-multiple: true
