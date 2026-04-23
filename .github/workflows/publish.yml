@@ -87,7 +87,7 @@ jobs:
           architecture: ${{ matrix.python-architecture }}
 
       - name: Extract version from tag
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         id: set_version
         with:
           script: |
