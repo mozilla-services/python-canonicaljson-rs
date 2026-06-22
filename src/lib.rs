@@ -113,7 +113,7 @@ fn to_json(py: Python, obj: &Py<PyAny>) -> Result<JsonValue, PyCanonicalJSONErro
     }
 
     // Dict
-    if let Ok(dict) = any.downcast::<PyDict>() {
+    if let Ok(dict) = any.cast::<PyDict>() {
         let mut map = serde_json::Map::new();
         for (k_any, v_any) in dict.iter() {
             // Key -> string per your rules
@@ -139,7 +139,7 @@ fn to_json(py: Python, obj: &Py<PyAny>) -> Result<JsonValue, PyCanonicalJSONErro
     }
 
     // List
-    if let Ok(lst) = any.downcast::<PyList>() {
+    if let Ok(lst) = any.cast::<PyList>() {
         let mut out = Vec::with_capacity(lst.len());
         for item in lst.iter() {
             out.push(to_json(py, &item.unbind())?);
@@ -148,7 +148,7 @@ fn to_json(py: Python, obj: &Py<PyAny>) -> Result<JsonValue, PyCanonicalJSONErro
     }
 
     // Tuple
-    if let Ok(tup) = any.downcast::<PyTuple>() {
+    if let Ok(tup) = any.cast::<PyTuple>() {
         let mut out = Vec::with_capacity(tup.len());
         for item in tup.iter() {
             out.push(to_json(py, &item.unbind())?);
@@ -157,7 +157,7 @@ fn to_json(py: Python, obj: &Py<PyAny>) -> Result<JsonValue, PyCanonicalJSONErro
     }
 
     // Float (reject NaN/Inf)
-    if let Ok(f) = any.downcast::<PyFloat>() {
+    if let Ok(f) = any.cast::<PyFloat>() {
         let val = f.value();
         match serde_json::Number::from_f64(val) {
             Some(n) => return Ok(JsonValue::Number(n)),
