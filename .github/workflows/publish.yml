@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - '*'
+  pull_request:
 
 jobs:
   build:
@@ -13,24 +14,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Windows builds are disabled because maturin fails.
-          # - os: windows
-          #   ls: dir
-          #   target: x86_64
-          #   manylinux: auto
-          #   python-architecture: x64
-          #   interpreter: 3.9 3.10 3.11 3.12 3.13 3.14
-          # - os: windows
-          #   ls: dir
-          #   target: i686
-          #   manylinux: auto
-          #   python-architecture: x86
-          #   interpreter: 3.9 3.10 3.11 3.12 3.13 3.14
+          - os: windows
+            ls: dir
+            target: x86_64
+            manylinux: auto
+            python-architecture: x64
+            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14
+          - os: windows
+            ls: dir
+            target: i686
+            manylinux: auto
+            python-architecture: x86
+            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14
           - os: macos
             target: x86_64
             manylinux: auto
             python-architecture: x64
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.9
+            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.11
           - os: macos
             target: aarch64
             manylinux: auto
@@ -43,17 +43,17 @@ jobs:
             target: x86_64
             manylinux: 2_28
             python-architecture: x64
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.9
+            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.11
           - os: ubuntu
             target: aarch64
             manylinux: 2_28
             python-architecture: x64
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.9
+            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.11
           - os: ubuntu
             target: armv7
             manylinux: 2_28
             python-architecture: x64
-            interpreter: 3.9 3.10 3.11 3.12 3.13
+            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14
           - os: ubuntu
             target: ppc64le
             manylinux: 2_28
@@ -69,12 +69,12 @@ jobs:
             target: x86_64
             manylinux: musllinux_1_1 # /!\ value used in steps conditions below.
             python-architecture: x64
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.9
+            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.11
           - os: ubuntu
             target: aarch64
             manylinux: musllinux_1_1
             python-architecture: x64
-            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.9
+            interpreter: 3.9 3.10 3.11 3.12 3.13 3.14 pypy3.11
 
     runs-on: ${{ matrix.os }}-latest
     steps:
@@ -87,6 +87,7 @@ jobs:
           architecture: ${{ matrix.python-architecture }}
 
       - name: Extract version from tag
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/github-script@v9
         id: set_version
         with:
@@ -98,6 +99,7 @@ jobs:
             core.setOutput('no-dash', no_dash)
 
       - name: Set package version from Git
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           cargo install cargo-edit
           cargo set-version ${{steps.set_version.outputs.no-dash}}
@@ -138,7 +140,7 @@ jobs:
 
   publish-to-pypi:
     name: Publish Python 🐍 distribution 📦 to PyPI
-    if: endsWith(github.ref, '-debug-publish-action') != true
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     needs:
       - build
     runs-on: ubuntu-latest
